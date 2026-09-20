@@ -125,3 +125,5 @@ This sends your changes to GitHub, and the game on the internet updates a minute
   `src/config.js`. Run it after editing a level or changing the jump or speed.
 - The gamepad is read directly with the browser Gamepad API, every frame, in
   [`src/controls.js`](src/controls.js): "standard" mapping, 0.15 stick deadzone.
+- [`docs/directions_train_simulator.md`](docs/directions_train_simulator.md) is the brief for the next project, a
+  train simulator built the same way. It is written for Claude Code sessions and records what was learnt here.
