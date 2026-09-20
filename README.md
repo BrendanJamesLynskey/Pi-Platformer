@@ -1,7 +1,7 @@
 # My Platformer
 
-A little platform game you can change yourself. Run left and right, jump over
-the pits and spikes, grab the coins and reach the purple flag.
+A little platform game you can change yourself. Drive a steam locomotive along
+the railway, jump over the pits and spikes, grab the coins and reach the purple flag.
 
 [Play it here](https://brendanjameslynskey.github.io/Pi-Platformer/)
 
@@ -35,7 +35,7 @@ If it isn't, the start screen will tell you.
 
 Now try these in the same file:
 
-- `PLAYER_COLOR` — change `"#ff5a5f"` to `"orange"` or `"#3399ff"`
+- `PLAYER_COLOR` — repaint the locomotive: change `"#1e6fd9"` to `"green"` or `"#c62828"`
 - `MOVE_SPEED` — run faster or slower
 - `GRAVITY` — make everything floaty (try `800`) or heavy (try `4000`)
 - `GAME_TITLE` — give your game a name
@@ -48,9 +48,10 @@ If you break something, change it back and save again.
 |------|---------------|
 | [`src/config.js`](src/config.js) | All the numbers and colours you can tweak |
 | [`src/level.js`](src/level.js) | The map, drawn with letters. Change it to build your own level! |
-| [`src/player.js`](src/player.js) | The player: how he looks, runs and jumps |
+| [`src/player.js`](src/player.js) | The steam locomotive: how it looks, runs and jumps |
 | [`src/controls.js`](src/controls.js) | Reads the gamepad and keyboard |
 | [`src/world.js`](src/world.js) | Turns the letters in the map into blocks, coins and spikes |
+| [`src/tiles.js`](src/tiles.js) | The pictures for the track, brick wall and bridge |
 | [`src/main.js`](src/main.js) | Starts the game and connects the start, game and win screens |
 
 ## Build your own level
@@ -58,12 +59,13 @@ If you break something, change it back and save again.
 Open [`src/level.js`](src/level.js). Every letter is one square:
 
 ```
-=  grass block      #  dirt block     $  coin
-^  spikes           F  finish flag     @  where you start
+=  railway track    #  brick wall     B  girder bridge
+$  coin             ^  spikes          F  finish flag
+@  where you start
 ```
 
-Add a `=` in the sky and you have a new platform. Add `^` and you have a new
-trap. Every row must be exactly the same length.
+Add a `B` in the sky and you have a new bridge to jump on. Add `^` and you have
+a new trap. Every row must be exactly the same length.
 
 You can run and jump about 4 squares across and 3 squares up, so don't make
 gaps bigger than that!
@@ -76,7 +78,7 @@ When you have made something you like:
 ./save "what I changed"
 ```
 
-For example: `./save "made the jump higher and the player orange"`.
+For example: `./save "made the jump higher and the engine green"`.
 This sends your changes to GitHub, and the game on the internet updates a minute later.
 
 ## Help, something is wrong

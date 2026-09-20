@@ -4,10 +4,10 @@
 // ---- The game ----
 export const GAME_TITLE = "My Platformer"; // shown on the start screen. Give it a name!
 
-// ---- The player ----
-export const PLAYER_COLOR = "#ff5a5f"; // any colour like "#3399ff" or "orange"
-export const PLAYER_WIDTH = 32;
-export const PLAYER_HEIGHT = 44;
+// ---- The player (a steam locomotive) ----
+export const PLAYER_COLOR = "#1e6fd9"; // colour of the boiler and cab: try "green" or "#c62828"
+export const PLAYER_WIDTH = 56;        // the size of the box that touches things
+export const PLAYER_HEIGHT = 44;       // (keep it under 48 so it fits under the low platforms)
 
 // ---- Movement ----
 export const MOVE_SPEED = 320;  // how fast you run left/right (bigger = faster)
@@ -23,8 +23,11 @@ export const STICK_DEADZONE = 0.15; // ignore tiny stick wobbles (the sticks nev
 
 // ---- Colours ----
 export const SKY_COLOR = "#7ec8f0";
-export const GRASS_COLOR = "#4caf50";
-export const DIRT_COLOR = "#8d6e63";
+export const BALLAST_COLOR = "#8a8175"; // the stones under the track
+export const BRICK_COLOR = "#9c4a35";
+export const GIRDER_COLOR = "#3f5f7a";  // steel bridges
+export const RAIL_COLOR = "#c9ced6";
+export const SLEEPER_COLOR = "#5d4037"; // the wooden planks the rails sit on
 export const COIN_COLOR = "#ffd54f";
 export const SPIKE_COLOR = "#455a64";
 export const FLAG_COLOR = "#ab47bc";

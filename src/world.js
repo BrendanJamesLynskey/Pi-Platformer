@@ -1,10 +1,9 @@
 // world.js — turns the letters in level.js into real things on screen.
 
 import { LEVEL_MAP } from "./level.js";
+import { makeTiles } from "./tiles.js";
 import {
   TILE_SIZE,
-  GRASS_COLOR,
-  DIRT_COLOR,
   COIN_COLOR,
   SPIKE_COLOR,
   FLAG_COLOR,
@@ -13,21 +12,11 @@ import {
 const T = TILE_SIZE;
 
 export function buildWorld(k) {
-  // A solid block: you can stand on it and can't walk through it.
-  // isStatic means "the block itself never moves or falls".
-  const solidBlock = (color) => () => [
-    k.rect(T, T),
-    k.color(color),
-    k.area(),
-    k.body({ isStatic: true }),
-  ];
-
   const level = k.addLevel(LEVEL_MAP, {
     tileWidth: T,
     tileHeight: T,
     tiles: {
-      "=": solidBlock(GRASS_COLOR),
-      "#": solidBlock(DIRT_COLOR),
+      ...makeTiles(k), // "=" track, "#" brick, "B" bridge (see tiles.js)
       "$": () => [
         k.circle(11),
         k.color(COIN_COLOR),
