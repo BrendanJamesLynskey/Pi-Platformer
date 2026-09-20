@@ -1,0 +1,81 @@
+// world.js — turns the letters in level.js into real things on screen.
+
+import { LEVEL_MAP } from "./level.js";
+import {
+  TILE_SIZE,
+  GRASS_COLOR,
+  DIRT_COLOR,
+  COIN_COLOR,
+  SPIKE_COLOR,
+  FLAG_COLOR,
+} from "./config.js";
+
+const T = TILE_SIZE;
+
+export function buildWorld(k) {
+  // A solid block: you can stand on it and can't walk through it.
+  // isStatic means "the block itself never moves or falls".
+  const solidBlock = (color) => () => [
+    k.rect(T, T),
+    k.color(color),
+    k.area(),
+    k.body({ isStatic: true }),
+  ];
+
+  const level = k.addLevel(LEVEL_MAP, {
+    tileWidth: T,
+    tileHeight: T,
+    tiles: {
+      "=": solidBlock(GRASS_COLOR),
+      "#": solidBlock(DIRT_COLOR),
+      "$": () => [
+        k.circle(11),
+        k.color(COIN_COLOR),
+        k.outline(3, k.rgb("#c79100")),
+        k.anchor("center"),
+        k.area(),
+        "coin",
+      ],
+      "^": () => [
+        // A triangle pointing up. The hitbox is just the bottom half so it feels fair.
+        k.polygon([k.vec2(0, T), k.vec2(T / 2, T * 0.3), k.vec2(T, T)]),
+        k.color(SPIKE_COLOR),
+        k.area({ shape: new k.Rect(k.vec2(8, T * 0.6), T - 16, T * 0.4) }),
+        "hazard",
+      ],
+      "F": () => [
+        k.rect(6, T),
+        k.color("#eeeeee"),
+        k.area({ shape: new k.Rect(k.vec2(-T / 2, -T), T * 1.5, T * 2) }),
+        "goal",
+      ],
+      "@": () => [k.pos(), "spawn"],
+    },
+  });
+
+  // Coins are drawn from their centre, so nudge them into the middle of their tile.
+  for (const coin of level.get("coin")) {
+    coin.pos = coin.pos.add(k.vec2(T / 2, T / 2));
+  }
+
+  // The flag tile is only one square, so add a second bit of pole above it
+  // and hang a purple flag on the very top.
+  for (const goal of level.get("goal")) {
+    goal.add([k.rect(6, T), k.color("#eeeeee"), k.pos(0, -T)]);
+    goal.add([
+      k.polygon([k.vec2(6, -T), k.vec2(T * 0.8, -T + 12), k.vec2(6, -T + 24)]),
+      k.color(FLAG_COLOR),
+    ]);
+  }
+
+  const spawnTile = level.get("spawn")[0];
+  const spawn = k.vec2(spawnTile.pos.x + T / 2, spawnTile.pos.y + T); // feet on the bottom of the tile
+  spawnTile.destroy();
+
+  return {
+    spawn,
+    coinCount: level.get("coin").length,
+    width: LEVEL_MAP[0].length * T,
+    height: LEVEL_MAP.length * T,
+  };
+}
