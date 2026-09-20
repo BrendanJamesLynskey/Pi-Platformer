@@ -92,6 +92,7 @@ export function makePlayer(k, controls, spawn) {
     "player",
   ]);
 
+  let restartPoint = spawn.clone(); // where to come back to after a fall or spikes
   let facing = 1;     // 1 = looking right, -1 = looking left
   let wheelAngle = 0; // how far the wheels have turned
   let lastX = spawn.x;
@@ -126,11 +127,16 @@ export function makePlayer(k, controls, spawn) {
     }
   });
 
-  // Put it back at the start (used when it falls in a pit or hits spikes).
+  // Remember a new place to restart from (a signal it has driven past).
+  player.setRestartPoint = (feetPos) => {
+    restartPoint = feetPos.clone();
+  };
+
+  // Put it back at the last signal, or the start (used when it falls in a pit or hits spikes).
   player.respawn = () => {
-    player.pos = spawn.clone();
+    player.pos = restartPoint.clone();
     player.vel = k.vec2(0, 0);
-    lastX = spawn.x; // so the wheels don't spin wildly for the trip back
+    lastX = restartPoint.x; // so the wheels don't spin wildly for the trip back
   };
 
   return player;

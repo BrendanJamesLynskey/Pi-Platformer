@@ -1,7 +1,8 @@
 # My Platformer
 
 A little platform game you can change yourself. Drive a steam locomotive along
-the railway, jump over the pits and spikes, grab the coins and reach the purple flag.
+the railway through five levels, jump over the pits and spikes, grab the coins and
+reach the purple flag at the end of each one.
 
 [Play it here](https://brendanjameslynskey.github.io/Pi-Platformer/)
 
@@ -47,28 +48,50 @@ If you break something, change it back and save again.
 | File | What is in it |
 |------|---------------|
 | [`src/config.js`](src/config.js) | All the numbers and colours you can tweak |
-| [`src/level.js`](src/level.js) | The map, drawn with letters. Change it to build your own level! |
+| [`src/levels.js`](src/levels.js) | All the levels, drawn with letters. Change them, or add your own! |
 | [`src/player.js`](src/player.js) | The steam locomotive: how it looks, runs and jumps |
 | [`src/controls.js`](src/controls.js) | Reads the gamepad and keyboard |
-| [`src/world.js`](src/world.js) | Turns the letters in the map into blocks, coins and spikes |
+| [`src/world.js`](src/world.js) | Turns the letters in a map into blocks, coins, spikes and signals |
 | [`src/tiles.js`](src/tiles.js) | The pictures for the track, brick wall and bridge |
-| [`src/main.js`](src/main.js) | Starts the game and connects the start, game and win screens |
+| [`src/main.js`](src/main.js) | Starts the game and connects the start, level and "level complete" screens |
+
+## The levels
+
+| # | Name | What is new |
+|---|------|-------------|
+| 1 | First Steps | Pits, spikes, a staircase and your first bridges |
+| 2 | Branch Line | Longer, with signals to restart from |
+| 3 | The Viaduct | A huge gap to cross on a chain of bridges |
+| 4 | Mountain Pass | Climb up the bridges, run along the top, come back down |
+| 5 | Grand Central | Everything at once, plus a low tunnel and single-square bridges |
+
+A **signal** is a checkpoint. Drive past it and the light turns green. If you
+fall in a pit or hit spikes, you start again from the last green signal.
+
+Want to jump straight to a level? Open [`src/config.js`](src/config.js) and change
+`START_LEVEL` to `4`.
 
 ## Build your own level
 
-Open [`src/level.js`](src/level.js). Every letter is one square:
+Open [`src/levels.js`](src/levels.js). Every letter is one square:
 
 ```
 =  railway track    #  brick wall     B  girder bridge
-$  coin             ^  spikes          F  finish flag
-@  where you start
+$  coin             ^  spikes          S  signal (checkpoint)
+F  finish flag      @  where you start
 ```
 
 Add a `B` in the sky and you have a new bridge to jump on. Add `^` and you have
 a new trap. Every row must be exactly the same length.
 
 You can run and jump about 4 squares across and 3 squares up, so don't make
-gaps bigger than that!
+gaps bigger than that! Under a bridge there is only just room for the engine,
+so don't put a bridge one square above the track.
+
+**To add a whole new level:** copy one of the `{ name, map }` blocks in
+`levels.js`, paste it at the bottom of the list, give it a new name and change
+the letters. Every map needs 15 rows, exactly one `@` and one `F`. The game
+plays the levels in the order they are listed.
 
 ## Save your work
 
@@ -97,5 +120,8 @@ This sends your changes to GitHub, and the game on the internet updates a minute
 - Pushing to `main` builds the game and publishes it to GitHub Pages
   ([`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)).
 - `npm run build` makes a `dist/` folder; `npm run preview` serves it locally.
+- `node tools/check-levels.js` ([`tools/check-levels.js`](tools/check-levels.js)) checks that every
+  level can be finished and every coin reached, using the jump and speed numbers from
+  `src/config.js`. Run it after editing a level or changing the jump or speed.
 - The gamepad is read directly with the browser Gamepad API, every frame, in
   [`src/controls.js`](src/controls.js): "standard" mapping, 0.15 stick deadzone.

@@ -3,6 +3,7 @@
 
 // ---- The game ----
 export const GAME_TITLE = "My Platformer"; // shown on the start screen. Give it a name!
+export const START_LEVEL = 1;              // which level to begin on. Set it to 3 to try level 3 straight away!
 
 // ---- The player (a steam locomotive) ----
 export const PLAYER_COLOR = "#1e6fd9"; // colour of the boiler and cab: try "green" or "#c62828"
@@ -35,4 +36,4 @@ export const FLAG_COLOR = "#ab47bc";
 // ---- Screen size (you probably don't need to change these) ----
 export const GAME_WIDTH = 1280;
 export const GAME_HEIGHT = 720;
-export const TILE_SIZE = 48; // each letter in level.js is one tile this big
+export const TILE_SIZE = 48; // each letter in levels.js is one tile this big

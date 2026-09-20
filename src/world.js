@@ -1,6 +1,5 @@
-// world.js — turns the letters in level.js into real things on screen.
+// world.js — turns the letters of one level (see levels.js) into real things on screen.
 
-import { LEVEL_MAP } from "./level.js";
 import { makeTiles } from "./tiles.js";
 import {
   TILE_SIZE,
@@ -11,8 +10,8 @@ import {
 
 const T = TILE_SIZE;
 
-export function buildWorld(k) {
-  const level = k.addLevel(LEVEL_MAP, {
+export function buildWorld(k, map) {
+  const level = k.addLevel(map, {
     tileWidth: T,
     tileHeight: T,
     tiles: {
@@ -37,6 +36,26 @@ export function buildWorld(k) {
         k.color("#eeeeee"),
         k.area({ shape: new k.Rect(k.vec2(-T / 2, -T), T * 1.5, T * 2) }),
         "goal",
+      ],
+      "S": () => [
+        // A signal. It starts red; once the engine drives past it turns green
+        // (main.js does that) and it becomes the new place to restart from.
+        k.area({ shape: new k.Rect(k.vec2(0, 0), T, T) }),
+        {
+          passed: false,
+          draw() {
+            const box = (x, y, width, height, color, radius = 0) =>
+              k.drawRect({ pos: k.vec2(x, y), width, height, color: k.rgb(color), radius });
+            box(21, 12, 6, T - 12, "#2b2b33"); // the post
+            box(13, 0, 22, 22, "#2b2b33", 4);  // the box with the lamps in
+            k.drawCircle({
+              pos: k.vec2(24, 11),
+              radius: 6,
+              color: k.rgb(this.passed ? "#43d17a" : "#ef3b3b"),
+            });
+          },
+        },
+        "signal",
       ],
       "@": () => [k.pos(), "spawn"],
     },
@@ -64,7 +83,7 @@ export function buildWorld(k) {
   return {
     spawn,
     coinCount: level.get("coin").length,
-    width: LEVEL_MAP[0].length * T,
-    height: LEVEL_MAP.length * T,
+    width: map[0].length * T,
+    height: map.length * T,
   };
 }

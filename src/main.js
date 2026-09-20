@@ -1,14 +1,17 @@
 // main.js — starts the game and joins the screens together:
-//   start screen  ->  the game  ->  win screen  ->  (back to the game)
+//   start screen  ->  level 1  ->  "level complete"  ->  level 2  ->  ...  ->  the end
 
 import kaplay from "kaplay";
 import { createControls } from "./controls.js";
 import { makePlayer } from "./player.js";
 import { buildWorld } from "./world.js";
+import { LEVELS } from "./levels.js";
 import {
   GAME_TITLE,
+  START_LEVEL,
   GAME_WIDTH,
   GAME_HEIGHT,
+  TILE_SIZE,
   GRAVITY,
   SKY_COLOR,
 } from "./config.js";
@@ -35,6 +38,7 @@ function addScene(name, setup) {
 }
 
 const CENTER_X = GAME_WIDTH / 2;
+const T = TILE_SIZE;
 const DARK = "#1b2a41";
 
 // A line of text in the middle of the screen (the anchor makes pos the middle of the text).
@@ -63,13 +67,19 @@ addScene("start", () => {
 
   k.onUpdate(() => {
     padMessage.text = messages[controls.padStatus];
-    if (controls.jumpPressed) k.go("game");
+    if (controls.jumpPressed) startLevel(START_LEVEL - 1, { coins: 0, possible: 0 });
   });
 });
 
+// Starts a level. "bank" is the coins collected in the levels finished so far.
+function startLevel(levelIndex, bank) {
+  k.go("game", { levelIndex, bank });
+}
+
 // ---------- The game ----------
-addScene("game", () => {
-  const world = buildWorld(k);
+addScene("game", ({ levelIndex, bank }) => {
+  const level = LEVELS[levelIndex];
+  const world = buildWorld(k, level.map);
   const player = makePlayer(k, controls, world.spawn);
   let coins = 0;
 
@@ -80,38 +90,67 @@ addScene("game", () => {
     k.fixed(), // fixed = stays on screen while the camera moves
     k.z(100),
   ]);
-  const showCoins = () => {
-    hud.text = `Coins: ${coins} / ${world.coinCount}`;
+  const showHud = () => {
+    hud.text = `Level ${levelIndex + 1}: ${level.name}    Coins: ${coins} / ${world.coinCount}`;
   };
-  showCoins();
+  showHud();
+
+  // The level's name, big in the middle for a couple of seconds.
+  const title = k.add([
+    k.text(`Level ${levelIndex + 1}\n${level.name}`, { size: 64, align: "center" }),
+    k.pos(CENTER_X, 200),
+    k.anchor("center"),
+    k.color(DARK),
+    k.fixed(),
+    k.z(100),
+  ]);
+  k.wait(2.5, () => title.destroy());
 
   player.onCollide("coin", (coin) => {
     coin.destroy();
     coins++;
-    showCoins();
+    showHud();
   });
   player.onCollide("hazard", () => player.respawn());
-  player.onCollide("goal", () => k.go("win", { coins, total: world.coinCount }));
+  player.onCollide("signal", (signal) => {
+    signal.passed = true; // turns the light green
+    player.setRestartPoint(k.vec2(signal.pos.x + T / 2, signal.pos.y + T));
+  });
+  player.onCollide("goal", () => {
+    const newBank = { coins: bank.coins + coins, possible: bank.possible + world.coinCount };
+    k.go("win", { levelIndex, coins, total: world.coinCount, bank: newBank });
+  });
 
   k.onUpdate(() => {
     // Follow the player sideways, but don't show past the edges of the level.
+    // (Every level is 15 squares tall, which is exactly the height of the screen.)
     const halfScreen = GAME_WIDTH / 2;
     const cameraX = Math.min(Math.max(player.pos.x, halfScreen), world.width - halfScreen);
     k.camPos(cameraX, GAME_HEIGHT / 2);
 
-    // Fell down a pit? Try again from the start.
+    // Fell down a pit? Try again from the last signal.
     if (player.pos.y > world.height + 200) player.respawn();
   });
 });
 
-// ---------- Win screen ----------
-addScene("win", ({ coins, total }) => {
-  addCenteredText("You made it!", 240, 72);
-  addCenteredText(`Coins: ${coins} / ${total}`, 340, 40);
-  addCenteredText("Press A to play again", 440, 32);
+// ---------- Level complete / the end ----------
+addScene("win", ({ levelIndex, coins, total, bank }) => {
+  const isLastLevel = levelIndex === LEVELS.length - 1;
+
+  if (isLastLevel) {
+    addCenteredText("You finished the railway!", 220, 64);
+    addCenteredText(`Coins in the whole game: ${bank.coins} / ${bank.possible}`, 340, 36);
+    addCenteredText("Press A to play again", 440, 32);
+  } else {
+    addCenteredText(`Level ${levelIndex + 1} complete!`, 220, 64);
+    addCenteredText(`Coins: ${coins} / ${total}`, 340, 40);
+    addCenteredText("Press A for the next level", 440, 32);
+  }
 
   k.onUpdate(() => {
-    if (controls.jumpPressed) k.go("game");
+    if (!controls.jumpPressed) return;
+    if (isLastLevel) k.go("start");
+    else startLevel(levelIndex + 1, bank);
   });
 });
 
